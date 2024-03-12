@@ -5,6 +5,7 @@
 
 ## Запуск проекта
 
+### `npm install`
 ### `npm start`
 
 ## NPM Version : `10.2.0`
