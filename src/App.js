@@ -3,9 +3,9 @@ import './styles/App.css'
 import Groups from "./components/Groups";
 import GroupsService from "./API/GroupsService";
 import {useFetching} from "./hooks/useFetching";
-import Filter from "./components/filter/Filter";
-import Modal from "./components/modal/Modal";
-import Friends from "./components/friends/Friends";
+import Modal from "./components/Modal/Modal";
+import Friends from "./components/Friends/Friends";
+import Filters from "./components/Filters";
 
 function App() {
 
@@ -22,12 +22,14 @@ function App() {
         {value: 'negative', name: 'Нет друзей'},
     ]
 
+    const defaultColor = {value: 'all', name: 'Все'}
+
     // Custom hook for fetching data or getting error
     const [fetching, loading, error] = useFetching(fetchGroups)
 
     // Data
     const [groups, setGroups] = useState([])
-    const [colors, setColors] = useState([{value: 'all', name: 'Все'}])
+    const [colors, setColors] = useState([defaultColor])
     const [activeFriends, setActiveFriends] = useState([])
     const [modal, setModal] = useState(false)
 
@@ -102,58 +104,66 @@ function App() {
             if (group.avatar_color)
                 colorsSet.add(group.avatar_color)
         })
-        const colorsArr = []
+        const colorsArr = [defaultColor]
         colorsSet.forEach((color) => {
             colorsArr.push({
                 value: color, name: color.charAt(0).toUpperCase() + color.slice(1)
             })
         })
-        setColors([...colors, ...colorsArr])
+        setColors([...colorsArr])
     }
 
 
+    function getFilters() {
+        return [
+            {
+                options: privateOptions,
+                selectedFilter: selectedFilter,
+                setSelectedFilter: setSelectedFilter,
+                title: 'По приватности'
+            },
+            {
+                options: colors,
+                selectedFilter: selectedColor,
+                setSelectedFilter: setSelectedColor,
+                title: 'По цвету'
+            },
+            {
+                options: friendsOptions,
+                selectedFilter: selectedFriends,
+                setSelectedFilter: setSelectedFriends,
+                title: 'По наличию друзей в группе'
+            }
+        ]
+    }
+
+    if (error)
+        return (
+            <div className="App">
+                <h1>{error}</h1>
+            </div>
+        )
+
     return (
         <div className="App">
-            {error
-                ?
-                <h1>{error}</h1>
-                :
-                <div>
-                    <Modal
-                        visible={modal}
+            <div>
+                <Modal
+                    visible={modal}
+                    setVisible={setModal}
+                >
+                    <Friends friends={activeFriends}/>
+                </Modal>
+                <h1 className={'mainTitle'}>Фильтры</h1>
+                <Filters filters={getFilters()}/>
+                {loading
+                    ? <h1 className={'mainTitle'}>Идет загрузка...</h1>
+                    : <Groups
+                        groups={filteredGroups}
                         setVisible={setModal}
-                    >
-                        <Friends friends={activeFriends}/>
-                    </Modal>
-                    <h1 className={'mainTitle'}>Фильтры</h1>
-                    <Filter
-                        options={privateOptions}
-                        selectedFilter={selectedFilter}
-                        setSelectedFilter={setSelectedFilter}
-                        title={'По приватности'}
+                        setFriends={setActiveFriends}
                     />
-                    <Filter
-                        options={colors}
-                        selectedFilter={selectedColor}
-                        setSelectedFilter={setSelectedColor}
-                        title={'По цвету'}
-                    />
-                    <Filter
-                        options={friendsOptions}
-                        selectedFilter={selectedFriends}
-                        setSelectedFilter={setSelectedFriends}
-                        title={'По наличию друзей в группе'}
-                    />
-                    {loading
-                        ? <h1 className={'mainTitle'}>Идет загрузка...</h1>
-                        : <Groups
-                            groups={filteredGroups}
-                            setVisible={setModal}
-                            setFriends={setActiveFriends}
-                        />
-                    }
-                </div>
-            }
+                }
+            </div>
         </div>
     );
 }

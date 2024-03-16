@@ -1,23 +1,23 @@
 import React from 'react';
-import Group from "./group/Group";
+import Group from "./Group/Group";
 
 const Groups = ({groups, setVisible, setFriends}) => {
+
+    if (groups.length === 0)
+        return (<h1 className={'mainTitle'}>Групп с выбранными параметрами нет</h1>)
+
     return (
-        groups.length === 0
-            ?
-            <h1 className={'mainTitle'}>Групп с выбранными параметрами нет</h1>
-            :
-            <div>
-                <h1 className={'mainTitle'}>Список Групп</h1>
-                {groups.map((group, index) =>
-                    <Group
-                        group={group}
-                        key={index}
-                        setVisible={setVisible}
-                        setFriends={setFriends}
-                    />
-                )}
-            </div>
+        <div>
+            <h1 className={'mainTitle'}>Список Групп</h1>
+            {groups.map((group, index) =>
+                <Group
+                    group={group}
+                    key={index}
+                    setVisible={setVisible}
+                    setFriends={setFriends}
+                />
+            )}
+        </div>
     );
 };
 
